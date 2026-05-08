@@ -151,6 +151,51 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
 .score-bar{display:flex;gap:6px;margin-top:8px;font-size:11px}
 .score-pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
 
+/* Mobile menu */
+.menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:0;margin-right:8px}
+.menu-overlay{display:none}
+@media(max-width:768px){
+  body{overflow:auto;height:auto;min-height:100vh}
+  .wrap{height:auto;min-height:100vh;flex-direction:column}
+  .menu-toggle{display:block}
+  .sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;z-index:100;transform:translateX(-100%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.1)}
+  .sidebar.open{transform:translateX(0)}
+  .menu-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:99;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  .menu-overlay.show{opacity:1;pointer-events:auto}
+  .main{flex:none;min-height:100vh}
+  .content{padding:12px 14px}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-val{font-size:18px}
+  .report-header{flex-direction:column;align-items:flex-start;gap:10px}
+  .report-actions{width:100%}
+  .report-actions .btn{flex:1;text-align:center}
+  .report-score{width:100%}
+  .checker-actions{flex-wrap:wrap}
+  .checker-actions .btn{flex:1;text-align:center;font-size:10px;padding:6px 8px}
+  .violation-grid{grid-template-columns:1fr!important}
+  .passed-grid{grid-template-columns:1fr!important}
+  .asset-table{font-size:11px;display:block;overflow-x:auto;white-space:nowrap}
+  .asset-table td,.asset-table th{padding:5px 8px}
+  .upload-zone{padding:20px 16px}
+  .upload-icon{font-size:28px}
+  .toast-container{left:12px;right:12px;bottom:12px;max-width:none}
+  .approval-asset{flex-wrap:wrap}
+  .cat-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .cat-tab{white-space:nowrap;flex-shrink:0}
+  .nav-item{padding:8px 10px;font-size:13px}
+  .audit-row{flex-wrap:wrap;gap:4px}
+  .audit-time{width:100%;padding-left:18px}
+  .filter-row{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .filter-btn{white-space:nowrap;flex-shrink:0}
+  .topbar-title{font-size:13px}
+  .topbar{padding:10px 14px}
+  .sidebar-logo{padding:14px 14px 10px}
+}
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:1fr}
+  .stat-val{font-size:16px}
+}
+
 /* Toast notifications */
 .toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px}
 .toast{background:#1e293b;color:#fff;padding:12px 16px;border-radius:10px;font-size:12.5px;line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;align-items:flex-start;gap:10px;animation:slideIn .3s ease;pointer-events:auto}
@@ -166,7 +211,7 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
 <h2 class="sr-only">InsureGuard — Insurance Marketing Compliance QA Tool demo with checklist builder, automated scanning, and maker-checker approval workflow</h2>
 
 <div class="wrap">
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-name"><i class="ti ti-shield-check" style="font-size:15px;vertical-align:-2px;margin-right:4px" aria-hidden="true"></i>InsureGuard</div>
       <div class="logo-sub">Marketing Compliance QA</div>
@@ -187,6 +232,7 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
 
   <div class="main">
     <div class="topbar">
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle menu"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-right">
         <span class="badge badge-warn"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> 3 pending review</span>
@@ -227,7 +273,7 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
         </table>
         <div style="margin-top:14px">
           <div class="section-head">Top violations this week</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+          <div class="violation-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
             <div class="violation-card"><div class="violation-title">Missing disclaimer footer</div><div class="violation-desc">8 assets · Legal rule LG-01</div></div>
             <div class="violation-card"><div class="violation-title">Off-brand color used</div><div class="violation-desc">5 assets · Brand rule BR-02</div></div>
             <div class="violation-card"><div class="violation-title">Return % not qualified</div><div class="violation-desc">4 assets · IRDAI rule IR-03</div></div>
@@ -326,7 +372,7 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
           <div style="margin-top:5px;display:flex;gap:6px"><button class="btn" style="font-size:10px;padding:3px 8px" onclick="showToast('Opened Figma frame at "returns-badge" for Health-Banner-Q2-Final','info')"><i class="ti ti-brand-figma" style="font-size:11px" aria-hidden="true"></i> View in Figma</button><button class="btn" style="font-size:10px;padding:3px 8px" onclick="requestOverride()">Request override</button></div>
         </div>
         <div class="section-head" style="margin-bottom:6px">Passed checks <span class="badge badge-ok">11</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="passed-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
           <div class="pass-card"><div class="violation-title" style="color:var(--color-text-success)"><i class="ti ti-check" style="font-size:11px" aria-hidden="true"></i> Brand color palette</div></div>
           <div class="pass-card"><div class="violation-title" style="color:var(--color-text-success)"><i class="ti ti-check" style="font-size:11px" aria-hidden="true"></i> Text contrast ≥ 4.5:1</div></div>
           <div class="pass-card"><div class="violation-title" style="color:var(--color-text-success)"><i class="ti ti-check" style="font-size:11px" aria-hidden="true"></i> Approved font family</div></div>
@@ -418,6 +464,7 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--text);background:va
   </div>
 </div>
 
+<div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
 <div class="toast-container" id="toast-container"></div>
 
 <script>
@@ -428,6 +475,15 @@ function nav(el,id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   document.getElementById('topbar-title').textContent=titles[id];
+  closeMenu();
+}
+function toggleMenu(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('menu-overlay').classList.toggle('show');
+}
+function closeMenu(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('menu-overlay').classList.remove('show');
 }
 function filterCat(el,cat){
   document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
